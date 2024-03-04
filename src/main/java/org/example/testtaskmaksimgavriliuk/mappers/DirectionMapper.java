@@ -12,8 +12,8 @@ public interface DirectionMapper {
 
     DirectionMapper INSTANCE = Mappers.getMapper(DirectionMapper.class);
 
-    Direction DirectionDTOToDirection(DirectionDTO directionDTO);
+    Direction toDirection(DirectionDTO directionDTO);
 
-    DirectionDTO DirectionToDirectionDTO(Direction direction);
+    DirectionDTO toDirectionDTO(Direction direction);
 
 }
