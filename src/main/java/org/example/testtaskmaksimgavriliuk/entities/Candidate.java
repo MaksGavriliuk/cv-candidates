@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,11 +41,13 @@ public class Candidate {
 
     private String description;
 
-    @Lob
-    private byte[] photo;
+    @OneToOne
+    @JoinColumn(name = "photo_id")
+    private Photo photo;
 
-    @Lob
-    private byte[] cv;
+    @OneToOne
+    @JoinColumn(name = "cv_file_id")
+    private CVFile cvFile;
 
     @ManyToMany
     @JoinTable(
