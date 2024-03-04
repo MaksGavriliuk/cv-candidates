@@ -3,6 +3,7 @@ package org.example.testtaskmaksimgavriliuk.services.impl;
 import lombok.AllArgsConstructor;
 import org.example.testtaskmaksimgavriliuk.entities.Photo;
 import org.example.testtaskmaksimgavriliuk.exceptions.NotFoundException;
+import org.example.testtaskmaksimgavriliuk.mappers.PhotoMapper;
 import org.example.testtaskmaksimgavriliuk.repositories.PhotoRepository;
 import org.example.testtaskmaksimgavriliuk.services.PhotoService;
 import org.springframework.data.domain.Page;
@@ -39,15 +40,8 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo savePhoto(MultipartFile file) {
-        try {
-            Photo photo = new Photo()
-                    .setName(file.getOriginalFilename())
-                    .setType(file.getContentType())
-                    .setPhoto(file.getBytes());
-            return photoRepository.save(photo);
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
+        Photo photo = PhotoMapper.INSTANCE.toPhoto(file);
+        return photoRepository.save(photo);
     }
 
     @Override
@@ -55,16 +49,8 @@ public class PhotoServiceImpl implements PhotoService {
         if (!photoRepository.existsById(id)) {
             throw new NotFoundException("Не удалось найти фото с id = " + id);
         }
-        try {
-            Photo photo = new Photo()
-                    .setId(id)
-                    .setName(file.getOriginalFilename())
-                    .setType(file.getContentType())
-                    .setPhoto(file.getBytes());
-            return photoRepository.save(photo);
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
+        Photo photo = PhotoMapper.INSTANCE.toPhoto(file).setId(id);
+        return photoRepository.save(photo);
     }
 
     @Override
