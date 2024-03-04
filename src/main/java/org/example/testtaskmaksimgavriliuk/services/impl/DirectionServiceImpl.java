@@ -22,28 +22,31 @@ public class DirectionServiceImpl implements DirectionService {
     @Override
     public Page<DirectionDTO> getDirections(Pageable pageable) {
         return directionRepository.findAll(pageable)
-                .map(DirectionMapper.INSTANCE::DirectionToDirectionDTO);
+                .map(DirectionMapper.INSTANCE::toDirectionDTO);
     }
 
     @Override
     public DirectionDTO getDirectionById(long id) {
         return directionRepository.findById(id)
-                .map(DirectionMapper.INSTANCE::DirectionToDirectionDTO)
+                .map(DirectionMapper.INSTANCE::toDirectionDTO)
                 .orElseThrow(() -> new NotFoundException("Не удалось найти направление с id = " + id));
     }
 
     @Override
     public DirectionDTO saveDirection(DirectionDTO directionDTO) {
-        Direction direction = DirectionMapper.INSTANCE.DirectionDTOToDirection(directionDTO);
+        Direction direction = DirectionMapper.INSTANCE.toDirection(directionDTO);
         directionRepository.save(direction);
-        return DirectionMapper.INSTANCE.DirectionToDirectionDTO(direction);
+        return DirectionMapper.INSTANCE.toDirectionDTO(direction);
     }
 
     @Override
     public DirectionDTO updateDirection(long id, DirectionDTO directionDTO) {
-        Direction direction = DirectionMapper.INSTANCE.DirectionDTOToDirection(directionDTO).setId(id);
+        if (!directionRepository.existsById(id)) {
+            throw new NotFoundException("Не удалось найти направления с id = " + id);
+        }
+        Direction direction = DirectionMapper.INSTANCE.toDirection(directionDTO).setId(id);
         directionRepository.save(direction);
-        return DirectionMapper.INSTANCE.DirectionToDirectionDTO(direction);
+        return DirectionMapper.INSTANCE.toDirectionDTO(direction);
     }
 
     @Override
