@@ -3,6 +3,7 @@ package org.example.testtaskmaksimgavriliuk.services.impl;
 import lombok.AllArgsConstructor;
 import org.example.testtaskmaksimgavriliuk.entities.CVFile;
 import org.example.testtaskmaksimgavriliuk.exceptions.NotFoundException;
+import org.example.testtaskmaksimgavriliuk.mappers.CVFileMapper;
 import org.example.testtaskmaksimgavriliuk.repositories.CVFileRepository;
 import org.example.testtaskmaksimgavriliuk.services.CVFileService;
 import org.springframework.data.domain.Page;
@@ -38,15 +39,8 @@ public class CVFileServiceImpl implements CVFileService {
 
     @Override
     public CVFile saveCVFile(MultipartFile file) {
-        try {
-            CVFile cvFile = new CVFile()
-                    .setName(file.getOriginalFilename())
-                    .setType(file.getContentType())
-                    .setCv(file.getBytes());
-            return cvFileRepository.save(cvFile);
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при сохранении CV-файла", e);
-        }
+        CVFile cvFile = CVFileMapper.INSTANCE.toCVFile(file);
+        return cvFileRepository.save(cvFile);
     }
 
     @Override
@@ -54,16 +48,8 @@ public class CVFileServiceImpl implements CVFileService {
         if (!cvFileRepository.existsById(id)) {
             throw new NotFoundException("Не удалось найти CV-файл с id = " + id);
         }
-        try {
-            CVFile cvFile = new CVFile()
-                    .setId(id)
-                    .setName(file.getOriginalFilename())
-                    .setType(file.getContentType())
-                    .setCv(file.getBytes());
-            return cvFileRepository.save(cvFile);
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при обновлении CV-файла", e);
-        }
+        CVFile cvFile = CVFileMapper.INSTANCE.toCVFile(file).setId(id);
+        return cvFileRepository.save(cvFile);
     }
 
     @Override
