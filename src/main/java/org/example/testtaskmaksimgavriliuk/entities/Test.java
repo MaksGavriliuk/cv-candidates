@@ -1,7 +1,6 @@
 package org.example.testtaskmaksimgavriliuk.entities;
 
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +16,7 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
+
 @Entity
 @Table(name = "tests")
 @Getter
@@ -30,10 +30,8 @@ public class Test {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false)
     private String description;
 
     @OneToMany

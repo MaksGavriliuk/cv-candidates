@@ -6,7 +6,7 @@ CREATE TABLE candidates
     patronymic  VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
     photo       BYTEA        NOT NULL,
-    cv          BYTEA        NOT NULL,
+    cv          BYTEA        NOT NULL
 );
 
 CREATE TABLE candidate_directions
