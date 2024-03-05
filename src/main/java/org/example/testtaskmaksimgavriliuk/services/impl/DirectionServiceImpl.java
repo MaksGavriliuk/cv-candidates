@@ -42,7 +42,7 @@ public class DirectionServiceImpl implements DirectionService {
     @Override
     public DirectionDTO updateDirection(long id, DirectionDTO directionDTO) {
         if (!directionRepository.existsById(id)) {
-            throw new NotFoundException("Не удалось найти направления с id = " + id);
+            throw new NotFoundException("Не удалось найти направление с id = " + id);
         }
         Direction direction = DirectionMapper.INSTANCE.toDirection(directionDTO).setId(id);
         directionRepository.save(direction);
@@ -59,4 +59,5 @@ public class DirectionServiceImpl implements DirectionService {
         return directionRepository.findByNameContainingIgnoreCase(filter, pageable)
                 .map(DirectionMapper.INSTANCE::toDirectionDTO);
     }
+
 }
