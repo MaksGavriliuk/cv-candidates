@@ -1,7 +1,6 @@
 package org.example.testtaskmaksimgavriliuk.services;
 
 import org.example.testtaskmaksimgavriliuk.dtos.TestDTO;
-import org.example.testtaskmaksimgavriliuk.entities.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,6 +16,6 @@ public interface TestService {
 
     void deleteTest(long id);
 
-    Page<Test> getFilteredTests(String filter, Pageable pageable);
+    Page<TestDTO> getFilteredTests(String filter, Pageable pageable);
 
 }

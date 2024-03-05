@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
@@ -34,8 +36,10 @@ public class Test {
 
     private String description;
 
-    @OneToMany
-    @JoinColumn(name = "test_id")
+    @ManyToMany
+    @JoinTable(name = "test_direction",
+            joinColumns = @JoinColumn(name = "test_id"),
+            inverseJoinColumns = @JoinColumn(name = "direction_id"))
     private List<Direction> directions;
 
 }

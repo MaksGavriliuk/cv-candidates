@@ -2,14 +2,18 @@ package org.example.testtaskmaksimgavriliuk.services.impl;
 
 import lombok.AllArgsConstructor;
 import org.example.testtaskmaksimgavriliuk.dtos.TestDTO;
+import org.example.testtaskmaksimgavriliuk.entities.Direction;
 import org.example.testtaskmaksimgavriliuk.entities.Test;
 import org.example.testtaskmaksimgavriliuk.exceptions.NotFoundException;
 import org.example.testtaskmaksimgavriliuk.mappers.TestMapper;
+import org.example.testtaskmaksimgavriliuk.repositories.DirectionRepository;
 import org.example.testtaskmaksimgavriliuk.repositories.TestRepository;
 import org.example.testtaskmaksimgavriliuk.services.TestService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class TestServiceImpl implements TestService {
 
     private final TestRepository testRepository;
+    private final DirectionRepository directionRepository;
 
 
     @Override
@@ -34,7 +39,8 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public TestDTO saveTest(TestDTO testDTO) {
-        Test test = TestMapper.INSTANCE.toTest(testDTO);
+        Test test = TestMapper.INSTANCE.toTest(testDTO)
+                .setDirections(mapDirectionsIdToDirections(testDTO.directionsId()));
         testRepository.save(test);
         return TestMapper.INSTANCE.toTestDTO(test);
     }
@@ -44,7 +50,9 @@ public class TestServiceImpl implements TestService {
         if (!testRepository.existsById(id)) {
             throw new NotFoundException("Не удалось найти тест с id = " + id);
         }
-        Test test = TestMapper.INSTANCE.toTest(testDTO).setId(id);
+        Test test = TestMapper.INSTANCE.toTest(testDTO)
+                .setId(id)
+                .setDirections(mapDirectionsIdToDirections(testDTO.directionsId()));
         testRepository.save(test);
         return TestMapper.INSTANCE.toTestDTO(test);
     }
@@ -55,8 +63,17 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public Page<Test> getFilteredTests(String filter, Pageable pageable) {
-        return testRepository.findByNameContainingIgnoreCase(filter, pageable);
+    public Page<TestDTO> getFilteredTests(String filter, Pageable pageable) {
+        return testRepository.findByNameContainingIgnoreCase(filter, pageable)
+                .map(TestMapper.INSTANCE::toTestDTO);
+    }
+
+    private List<Direction> mapDirectionsIdToDirections(List<Long> directionsId) {
+        return directionsId
+                .stream()
+                .map(id -> directionRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Не удалось найти направления с id = " + id)))
+                .toList();
     }
 
 }
