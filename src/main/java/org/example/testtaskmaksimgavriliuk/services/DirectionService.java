@@ -17,6 +17,6 @@ public interface DirectionService {
 
     void deleteDirection(long id);
 
-    Page<Direction> getFilteredDirections(String filter, Pageable pageable);
+    Page<DirectionDTO> getFilteredDirections(String filter, Pageable pageable);
 
 }

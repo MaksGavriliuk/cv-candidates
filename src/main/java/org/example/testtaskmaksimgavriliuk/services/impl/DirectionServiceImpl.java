@@ -55,7 +55,8 @@ public class DirectionServiceImpl implements DirectionService {
     }
 
     @Override
-    public Page<Direction> getFilteredDirections(String filter, Pageable pageable) {
-        return directionRepository.findByNameContainingIgnoreCase(filter, pageable);
+    public Page<DirectionDTO> getFilteredDirections(String filter, Pageable pageable) {
+        return directionRepository.findByNameContainingIgnoreCase(filter, pageable)
+                .map(DirectionMapper.INSTANCE::toDirectionDTO);
     }
 }
