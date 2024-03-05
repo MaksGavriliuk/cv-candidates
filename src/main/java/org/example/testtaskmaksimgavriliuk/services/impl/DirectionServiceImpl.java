@@ -3,6 +3,7 @@ package org.example.testtaskmaksimgavriliuk.services.impl;
 import lombok.AllArgsConstructor;
 import org.example.testtaskmaksimgavriliuk.dtos.DirectionDTO;
 import org.example.testtaskmaksimgavriliuk.entities.Direction;
+import org.example.testtaskmaksimgavriliuk.entities.Test;
 import org.example.testtaskmaksimgavriliuk.mappers.DirectionMapper;
 import org.example.testtaskmaksimgavriliuk.repositories.DirectionRepository;
 import org.example.testtaskmaksimgavriliuk.services.DirectionService;
@@ -51,7 +52,13 @@ public class DirectionServiceImpl implements DirectionService {
 
     @Override
     public void deleteDirection(long id) {
-        directionRepository.deleteById(id);
+        Direction direction = directionRepository.findById(id).orElse(null);
+        if (direction != null) {
+            for (Test test : direction.getTests()) {
+                test.getDirections().remove(direction);
+            }
+            directionRepository.delete(direction);
+        }
     }
 
     @Override
