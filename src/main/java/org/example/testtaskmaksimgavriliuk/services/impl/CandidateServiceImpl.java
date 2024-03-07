@@ -16,7 +16,6 @@ import org.example.testtaskmaksimgavriliuk.repositories.PhotoRepository;
 import org.example.testtaskmaksimgavriliuk.services.CandidateService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +31,7 @@ public class CandidateServiceImpl implements CandidateService {
 
 
     @Override
-    public Page<CandidateDTO> getAllCandidates(Pageable pageable) {
+    public Page<CandidateDTO> getCandidates(Pageable pageable) {
         return candidateRepository.findAll(pageable)
                 .map(CandidateMapper.INSTANCE::toCandidateDTO);
     }
@@ -44,32 +43,10 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    public Page<CandidateDTO> getSortedCandidates(Sort sort, Pageable pageable) {
-        return candidateRepository.findSortedCandidates(sort, pageable)
-                .map(CandidateMapper.INSTANCE::toCandidateDTO);
-    }
-
-    @Override
     public CandidateDTO getCandidateById(Long id) {
         return candidateRepository.findById(id)
                 .map(CandidateMapper.INSTANCE::toCandidateDTO)
                 .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id));
-    }
-
-    @Override
-    public MultipartFile getPhotoByCandidateId(Long id) {
-        Photo photo = candidateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id))
-                .getPhoto();
-        return PhotoMapper.INSTANCE.toMultipartFile(photo);
-    }
-
-    @Override
-    public MultipartFile getCVByCandidateId(Long id) {
-        CVFile cvFile = candidateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id))
-                .getCvFile();
-        return CVFileMapper.INSTANCE.toMultipartFile(cvFile);
     }
 
     @Transactional
@@ -77,13 +54,13 @@ public class CandidateServiceImpl implements CandidateService {
     public CandidateDTO saveCandidate(CandidateDTO candidateDTO, MultipartFile photo, MultipartFile cv) {
         Photo photo1 = PhotoMapper.INSTANCE.toPhoto(photo);
         CVFile cvFile = CVFileMapper.INSTANCE.toCVFile(cv);
+        Photo savedPhoto = photoRepository.save(photo1);
+        CVFile savedCVFile = cvFileRepository.save(cvFile);
         Candidate candidate = CandidateMapper.INSTANCE.toCandidate(candidateDTO)
-                .setPhoto(photo1)
-                .setCvFile(cvFile);
-        photoRepository.save(photo1);
-        cvFileRepository.save(cvFile);
-        candidateRepository.save(candidate);
-        return CandidateMapper.INSTANCE.toCandidateDTO(candidate);
+                .setPhoto(savedPhoto)
+                .setCvFile(savedCVFile);
+        Candidate savedCandidate = candidateRepository.save(candidate);
+        return CandidateMapper.INSTANCE.toCandidateDTO(savedCandidate);
     }
 
     @Transactional
@@ -92,13 +69,11 @@ public class CandidateServiceImpl implements CandidateService {
         if (!candidateRepository.existsById(id)) {
             throw new NotFoundException("Не удалось найти кандидата с id = " + id);
         }
-        Photo photo1 = PhotoMapper.INSTANCE.toPhoto(photo);
-        CVFile cvFile = CVFileMapper.INSTANCE.toCVFile(cv);
+        Photo updatedPhoto = updatePhotoByCandidateId(id, photo);
+        CVFile updatedCVFile = updateCVFileByCandidateId(id, cv);
         Candidate candidate = CandidateMapper.INSTANCE.toCandidate(candidateDTO)
-                .setPhoto(photo1)
-                .setCvFile(cvFile);
-        photoRepository.save(photo1);
-        cvFileRepository.save(cvFile);
+                .setPhoto(updatedPhoto)
+                .setCvFile(updatedCVFile);
         candidateRepository.save(candidate);
         return CandidateMapper.INSTANCE.toCandidateDTO(candidate);
     }
@@ -108,9 +83,63 @@ public class CandidateServiceImpl implements CandidateService {
     public void deleteCandidate(Long id) {
         Candidate candidate = candidateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id));
+        candidateRepository.deleteById(id);
         photoRepository.deleteById(candidate.getPhoto().getId());
         cvFileRepository.deleteById(candidate.getCvFile().getId());
-        candidateRepository.deleteById(id);
+    }
+
+    @Override
+    public Photo getPhotoByCandidateId(Long id) {
+        return candidateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id))
+                .getPhoto();
+    }
+
+    @Override
+    public CVFile getCVByCandidateId(Long id) {
+        return candidateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id))
+                .getCvFile();
+    }
+
+    @Override
+    public Photo updatePhotoByCandidateId(Long id, MultipartFile photo) {
+
+        Candidate candidate = candidateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id));
+
+        Photo existingPhoto = candidate.getPhoto();
+        Photo updatedPhoto = PhotoMapper.INSTANCE.toPhoto(photo);
+        if (existingPhoto != null) {
+            updatedPhoto.setId(existingPhoto.getId());
+        }
+
+        Photo savedPhoto = photoRepository.save(updatedPhoto);
+        candidate.setPhoto(savedPhoto);
+        candidateRepository.save(candidate);
+
+        return savedPhoto;
+
+    }
+
+    @Override
+    public CVFile updateCVFileByCandidateId(Long id, MultipartFile cvFile) {
+
+        Candidate candidate = candidateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Не удалось найти кандидата с id = " + id));
+
+        CVFile existingCVFile = candidate.getCvFile();
+        CVFile updatedCVFile = CVFileMapper.INSTANCE.toCVFile(cvFile);
+        if (existingCVFile != null) {
+            updatedCVFile.setId(existingCVFile.getId());
+        }
+
+        CVFile savedCVFile = cvFileRepository.save(updatedCVFile);
+        candidate.setCvFile(savedCVFile);
+        candidateRepository.save(candidate);
+
+        return savedCVFile;
+
     }
 
 }

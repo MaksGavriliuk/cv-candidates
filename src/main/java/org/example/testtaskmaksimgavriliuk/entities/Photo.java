@@ -6,13 +6,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
 
 @Entity
 @Table(name = "photos")
@@ -31,7 +31,7 @@ public class Photo {
 
     private String type;
 
-    @Lob
+    @Column(columnDefinition = "BYTEA")
     private byte[] photo;
 
 }
