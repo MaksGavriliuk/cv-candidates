@@ -4,6 +4,7 @@ import org.example.testtaskmaksimgavriliuk.dtos.CandidateTestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+
 public interface CandidateTestService {
 
     Page<CandidateTestDTO> getCandidateTests(Pageable pageable);

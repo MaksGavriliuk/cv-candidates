@@ -18,6 +18,7 @@ import lombok.experimental.Accessors;
 
 import java.util.Date;
 
+
 @Entity
 @Table(name = "candidate_tests")
 @Getter
