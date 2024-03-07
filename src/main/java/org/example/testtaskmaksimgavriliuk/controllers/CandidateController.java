@@ -1,6 +1,8 @@
 package org.example.testtaskmaksimgavriliuk.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.example.testtaskmaksimgavriliuk.dtos.CandidateDTO;
 import org.example.testtaskmaksimgavriliuk.entities.CVFile;
@@ -33,35 +35,43 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequestMapping("/candidates")
 @AllArgsConstructor
+@Tag(name = "Candidate", description = "Controller for manage candidates")
 public class CandidateController {
 
     private final CandidateService candidateService;
 
-
+    @Operation(
+            summary = "Get candidates",
+            description = "Allows to get candidates page by specifying the page number and size. The default page size is 20"
+    )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<CandidateDTO> getCandidates(Pageable pageable) {
         return candidateService.getCandidates(pageable);
     }
 
+    @Operation(summary = "Get filtered candidates", description = "Allows to get candidates page filtered by surname by specifying the page number and size. The default page size is 20")
     @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
     public Page<CandidateDTO> getCandidates(@RequestParam(name = "surname") String filter, Pageable pageable) {
         return candidateService.getFilteredCandidates(filter, pageable);
     }
 
+    @Operation(summary = "Get candidate by id", description = "Allows to get candidate by id")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CandidateDTO getCandidate(@PathVariable Long id) {
         return candidateService.getCandidateById(id);
     }
 
+    @Operation(summary = "Create new candidate", description = "Allows to create new candidate and return it")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CandidateDTO saveCandidate(CandidateDTO candidateDTO, MultipartFile photo, MultipartFile cv) {
         return candidateService.saveCandidate(candidateDTO, photo, cv);
     }
 
+    @Operation(summary = "Update an existing candidate", description = "Allows to update an existing candidate and return it")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CandidateDTO updateCandidate(
@@ -71,12 +81,14 @@ public class CandidateController {
         return candidateService.updateCandidate(id, candidateDTO, photo, cv);
     }
 
+    @Operation(summary = "Delete candidate", description = "Allows to delete a candidate")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCandidate(@PathVariable Long id) {
         candidateService.deleteCandidate(id);
     }
 
+    @Operation(summary = "Get photo of candidate", description = "Allows to get photo of candidate by candidate id")
     @GetMapping("/{id}/photo")
     public ResponseEntity<Resource> getPhotoByCandidateId(@PathVariable Long id) {
         Photo photo = candidateService.getPhotoByCandidateId(id);
@@ -89,6 +101,7 @@ public class CandidateController {
     }
 
 
+    @Operation(summary = "Get cv file of candidate", description = "Allows to get cv file of candidate by candidate id")
     @GetMapping("/{id}/cv")
     public ResponseEntity<Resource> getCVFileByCandidateId(@PathVariable Long id) {
         CVFile cvFile = candidateService.getCVByCandidateId(id);
@@ -100,6 +113,7 @@ public class CandidateController {
                 .body(new ByteArrayResource(cvFile.getCv()));
     }
 
+    @Operation(summary = "Update photo of candidate", description = "Allows to update an existing photo of candidate by candidate id")
     @PutMapping("/{id}/photo")
     @ResponseStatus(HttpStatus.OK)
     public void updatePhoto(
@@ -109,6 +123,7 @@ public class CandidateController {
         candidateService.updatePhotoByCandidateId(id, photo);
     }
 
+    @Operation(summary = "Update cv file of candidate", description = "Allows to update an existing cv file of candidate by candidate id")
     @PutMapping("/{id}/cv")
     @ResponseStatus(HttpStatus.OK)
     public void updateCVFile(
